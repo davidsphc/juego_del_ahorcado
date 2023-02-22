@@ -2,13 +2,15 @@ import { letters } from './helpers/letters';
 import './App.css';
 import { HangImage } from './components/Hanglmage';
 import { useEffect, useState } from 'react';
+import { getRandomWord } from './helpers/randomWord';
 
 
 function App() {
-    const [word] = useState('COMPUTADORA')
+    const [word, setWord ] = useState(getRandomWord());
     const [hiddenWord, setHiddenWord] = useState('_ '.repeat (word.length))
     const [ attemps, setAttemps ] = useState(0)
     const [lose, setLose ] = useState(false);
+    const [won, setWon] = useState(false);
 
     useEffect( () => {
         if ( attemps >= 9 ){
@@ -18,12 +20,18 @@ function App() {
 
 
     useEffect( () => {
-        console.log(hiddenWord)
+     
+        const currentHiddenWord = hiddenWord.split(' ').join('');
+            if ( currentHiddenWord === word ) {
+                setWon( true )
+        }
       
-    },[])
+    },[hiddenWord])
 
     const checkLetter = (letter : string) => {
-        if  ( !word.includes(letter) ){
+        if ( lose ) return;
+        if ( won ) return;
+            if  ( !word.includes(letter) ){
                 setAttemps(Math.min (attemps + 1, 9) )
                 return;
             } 
@@ -38,6 +46,14 @@ function App() {
             }
         } 
     }
+    const newGame = () => {
+        const newWord = getRandomWord();
+        setWord( newWord );
+        setHiddenWord( '_ '.repeat(newWord.length) )
+        setAttemps(0);
+        setLose(false);
+        setWon(false);
+    }   
 
 
     // const checkLetter = (letter : string) => {
@@ -62,9 +78,13 @@ function App() {
                 ?<h2>Perdió, la palabra es: { word }</h2> 
                 : ''
             }
-            
+             {
+                ( won )
+                ?<h2>¡Ganó!</h2> 
+                : ''
+            }
             {
-
+                    
                 letters.map((letter)=>(
                     <button 
                         onClick={ () => checkLetter(letter)}
@@ -72,7 +92,9 @@ function App() {
                         { letter }
                     </button>
                 ))                                    
-            }         
+            } 
+        <br /><br />
+        <button onClick={newGame}>¿Nuevo Juego?</button>        
         </div>
     );
 };
